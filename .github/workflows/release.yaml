@@ -16,6 +16,7 @@ jobs:
 
   # Build for wasm
   release-wasm:
+    permissions: write-all
     runs-on: ubuntu-latest
 
     steps:
