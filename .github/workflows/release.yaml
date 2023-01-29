@@ -65,7 +65,7 @@ jobs:
   # Build for Linux
   release-linux:
     runs-on: ubuntu-latest
-
+    permissions: write-all
     steps:
       - uses: little-core-labs/get-git-tag@v3.0.1
         id: get_version
@@ -113,7 +113,7 @@ jobs:
   # Build for Windows
   release-windows:
     runs-on: windows-latest
-
+    permissions: write-all
     steps:
       - uses: little-core-labs/get-git-tag@v3.0.1
         id: get_version
@@ -156,8 +156,8 @@ jobs:
 
   # Build for macOS
   release-macos:
-    runs-on: macOS-latest
-
+    runs-on: macos-latest
+    permissions: write-all
     steps:
       - uses: little-core-labs/get-git-tag@v3.0.1
         id: get_version
