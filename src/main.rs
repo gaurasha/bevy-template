@@ -1,6 +1,5 @@
 ///! This example illustrates how to resize windows, and how to respond to a window being resized.
 use bevy::{prelude::*, window::WindowResized};
-use bevy_egui::{egui, EguiContext, EguiPlugin};
 
 fn main() {
     App::new()
@@ -18,10 +17,8 @@ fn main() {
             },
             ..default()
         }))
-        .add_plugin(EguiPlugin)
         // Systems that create Egui widgets should be run during the `CoreStage::Update` stage,
         // or after the `EguiSystem::BeginFrame` system (which belongs to the `CoreStage::PreUpdate` stage).
-        .add_system(ui_example_system)
         .add_startup_system(setup_camera)
         .add_startup_system(setup_ui)
         .add_system(on_resize_system)
@@ -138,9 +135,3 @@ fn on_resize_system(
 // fn find_bottom_right(window: &Window) -> Vec3 {
 //     Vec3::new(window.width() / 2.0, window.height() / -2.0, 0.0)
 // }
-
-fn ui_example_system(mut egui_context: ResMut<EguiContext>) {
-    egui::Window::new("Hello").show(egui_context.ctx_mut(), |ui| {
-        ui.label("world");
-    });
-}

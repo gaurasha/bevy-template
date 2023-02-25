@@ -6,4 +6,3 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 bevy = "0.9"
-bevy_egui = "0.19"
