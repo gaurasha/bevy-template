@@ -6,11 +6,11 @@ wasm:
 
 dist-js: wasm
 	-rm -r ${DIST_JS}
-	mkdir ${DIST_JS}
-	cp target/wasm32-unknown-unknown/debug/bevy_github_ci_template.wasm ${DIST_JS}/bevy_game_bg.wasm
+	mkdir -p ${DIST_JS}
+	cp target/wasm32-unknown-unknown/debug/bevy-template.wasm ${DIST_JS}/bevy_game_bg.wasm
 	cp -r assets ${DIST_JS}/assets
 	cp wasm/* ${DIST_JS}
-	wasm-bindgen --no-typescript --out-name bevy_game --out-dir ${DIST_JS} --target web target/wasm32-unknown-unknown/debug/bevy_github_ci_template.wasm
+	wasm-bindgen --no-typescript --out-name bevy_game --out-dir ${DIST_JS} --target web target/wasm32-unknown-unknown/debug/bevy-template.wasm
 
 deploy-js: dist-js
 	-rm -rf tmp
@@ -22,4 +22,4 @@ run:
 	cargo run 
 
 serve : dist-js
-	python -m http.server 8000 --dir "${DIST_JS}"
+	python -m http.server 8010 --dir "${DIST_JS}"

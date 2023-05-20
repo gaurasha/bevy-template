@@ -1,5 +1,8 @@
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
+use bevy::window::ExitCondition;
 ///! This example illustrates how to resize windows, and how to respond to a window being resized.
 use bevy::{prelude::*, window::WindowResized};
+use bevy_text::{Text, TextAlignment, TextStyle};
 
 fn main() {
     App::new()
@@ -9,20 +12,22 @@ fn main() {
             small: Vec2::new(640.0, 360.0),
         })
         .add_plugins(DefaultPlugins.set(WindowPlugin {
-            window: WindowDescriptor {
+            primary_window: Some(Window {
                 fit_canvas_to_parent: true,
-                title: "Game of Life".to_string(),
+                title: "bevy-template".to_string(),
                 // canvas: Some("#bevy".to_string()),
                 ..default()
-            },
+            }),
+            exit_condition: ExitCondition::OnAllClosed,
+            close_when_requested: true,
             ..default()
         }))
-        // Systems that create Egui widgets should be run during the `CoreStage::Update` stage,
-        // or after the `EguiSystem::BeginFrame` system (which belongs to the `CoreStage::PreUpdate` stage).
+        .add_plugin(LogDiagnosticsPlugin::default())
+        .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_startup_system(setup_camera)
         .add_startup_system(setup_ui)
         .add_system(on_resize_system)
-        .add_system(toggle_resolution)
+        // .add_system(toggle_resolution)
         // .add_system(update_marker.after(on_resize_system))
         .run();
 }
@@ -50,60 +55,48 @@ fn setup_ui(mut cmd: Commands, asset_server: Res<AssetServer>) {
     cmd.spawn(NodeBundle {
         style: Style {
             size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+            align_items: AlignItems::Center,
             ..default()
         },
-        background_color: BackgroundColor(Color::YELLOW),
+        background_color: BackgroundColor(Color::WHITE),
         ..default()
     })
-    .with_children(|root| {
+    .with_children(|parent| {
         // Text where we display current resolution
-        root.spawn((
-            TextBundle::from_section(
-                "Resolution",
-                TextStyle {
-                    font: asset_server.load("fonts/FiraMono-Medium.ttf"),
-                    font_size: 50.0,
-                    color: Color::BLACK,
+        parent
+            .spawn((NodeBundle {
+                style: Style {
+                    position_type: PositionType::Relative,
+                    align_items: AlignItems::Center,
+                    align_self: AlignSelf::Center,
+                    flex_direction: FlexDirection::Column,
+                    flex_grow: 1.0,
+                    ..default()
                 },
-            ),
-            ResolutionText,
-            // Transform::IDENTITY,
-        ));
+                ..Default::default()
+            },))
+            .with_children(|parent| {
+                parent.spawn((
+                    TextBundle::from_section(
+                        "Resolution",
+                        TextStyle {
+                            font: asset_server.load("fonts/FiraMono-Medium.ttf"),
+                            font_size: 50.0,
+                            color: Color::BLACK,
+                        },
+                    )
+                    .with_text_alignment(TextAlignment::Center)
+                    .with_style(Style {
+                        position_type: PositionType::Relative,
+                        align_items: AlignItems::Center,
+                        align_self: AlignSelf::Center,
+
+                        ..default()
+                    }),
+                    ResolutionText,
+                ));
+            });
     });
-    // .with_children(|root| {
-    //     // Text where we display current resolution
-    //     root.spawn((
-    //         SpriteBundle {
-    //             texture: asset_server.load("icon.png"),
-    //             transform: Transform::from_xyz(100.0, 100.0, 100.0),
-    //             ..default()
-    //         },
-    //         Marker,
-    //         // Transform::IDENTITY,
-    //     ));
-    // });
-}
-
-/// This system shows how to request the window to a new resolution
-fn toggle_resolution(
-    keys: Res<Input<KeyCode>>,
-    mut windows: ResMut<Windows>,
-    resolution: Res<ResolutionSettings>,
-) {
-    let window = windows.primary_mut();
-
-    if keys.just_pressed(KeyCode::Key1) {
-        let res = resolution.small;
-        window.set_resolution(res.x, res.y);
-    }
-    if keys.just_pressed(KeyCode::Key2) {
-        let res = resolution.medium;
-        window.set_resolution(res.x, res.y);
-    }
-    if keys.just_pressed(KeyCode::Key3) {
-        let res = resolution.large;
-        window.set_resolution(res.x, res.y);
-    }
 }
 
 /// This system shows how to respond to a window being resized.
@@ -116,22 +109,8 @@ fn on_resize_system(
     for e in resize_reader.iter() {
         // When resolution is being changed
         text.sections[0].value = format!("{:.1} x {:.1}", e.width, e.height);
+        text.sections[0].value = format!("bevy-template");
+        text.alignment = TextAlignment::Center;
         // text.sections[0].
     }
 }
-
-// //Component to tag a marker
-// #[derive(Component)]
-// struct Marker;
-// //system that updates the position of the marker
-// fn update_marker(mut query: Query<&mut Transform, With<Marker>>, mut windows: ResMut<Windows>) {
-//     //window resource has changed, so lets update the position
-//     let window = windows.primary_mut();
-//     for mut transform in &mut query {
-//         transform.translation = find_bottom_right(&window);
-//     }
-// }
-// //help function that finds the bottom right coordinates of the window
-// fn find_bottom_right(window: &Window) -> Vec3 {
-//     Vec3::new(window.width() / 2.0, window.height() / -2.0, 0.0)
-// }
